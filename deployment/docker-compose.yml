@@ -1,64 +1,85 @@
-version: "1.0"
+version: "3.3"
 services:
-  web_app_entry:
-    build: ./web_app_entry
-    container_name: web_app_entry
+  zookeeper:
+    image: wurstmeister/zookeeper
     ports:
-      - "5000:5000"
-    networks:
-      - prod-net-1
-    restart: always
-    depends_on:
-      - analytics_service
-
-  auth_app:
-    build: ./auth_app
-    container_name: auth_app
+      - "2181"
+    hostname: zookeeper
+  kafka:
+    image: wurstmeister/kafka
+    command: [start-kafka.sh]
     ports:
-      - "5001:5001"
-    networks:
-      - prod-net-1
-    restart: always
+      - "9092:9092"
+    hostname: kafka
+    environment:
+      KAFKA_CREATE_TOPICS: "events:1:1" # topic:partition:replicas
+      KAFKA_ADVERTISED_HOST_NAME: kafkaprod1.westus3.cloudapp.azure.com # docker-machine ip
+      KAFKA_LISTENERS: INSIDE://:29092,OUTSIDE://:9092
+      KAFKA_INTER_BROKER_LISTENER_NAME: INSIDE
+      KAFKA_ADVERTISED_LISTENERS: INSIDE://kafka:29092,OUTSIDE://kafkaprod1.westus3.cloudapp.azure.com:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INSIDE:PLAINTEXT,OUTSIDE:PLAINTEXT
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
     depends_on:
-      - web_app_entry
-      - web_app_result
-
-  analytics_service:
-    build: ./analytics_service
-    container_name: analytics_service
+      - "zookeeper"
+  db:
+    image: mysql:5.7
+    restart: always
+    environment:
+      MYSQL_DATABASE: "events"
+      # So you don't have to use root, but you can if you like
+      MYSQL_USER: "kafkauser1"
+      # You can use whatever password you like
+      MYSQL_PASSWORD: "BurgerCheese3344"
+      # Password for root access
+      MYSQL_ROOT_PASSWORD: "BurgerCheese3344"
+    ports:
+      # <Port exposed> : < MySQL Port running inside container>
+      - "3306:3306"
+    expose:
+      # Opens port 3306 on the container
+      - "3306"
+    # Where our data will be persisted
+    volumes:
+      - my-db:/var/lib/mysql
+    # Names our volume
+  receiver:
+    image: receiver
     ports:
       - "8080:8080"
-    networks:
-      - prod-net-1
-    restart: always
-
-  mongo_service:
-    build: ./mongo_service
-    container_name: mongo_service
-    networks:
-      - prod-net-1
-    restart: always
-
-  mysql_service:
-    build: ./mysql_service
-    container_name: mysql_service
-    networks:
-      - prod-net-1
-    restart: always
     depends_on:
-      - mongo_service
-
-  web_app_result:
-    build: ./web_app_result
-    container_name: web_app_result
+      - kafka
+  storage:
+    image: storage
     ports:
-      - "5002:5002"
-    networks:
-      - prod-net-1
-    restart: always
+      - "8090:8090"
     depends_on:
-      - analytics_service
+      - kafka, db
+  processing:
+    image: processing
+    ports:
+      - "8100:8100"
+    network_mode: "host"
+    depends_on:
+      - storage
+  audit_log:
+    image: audit_log
+    ports:
+      - "8110:8110"
+    depends_on:
+      - kafka
 
-networks:
-  prod-net-1:
-    driver: bridge
+volumes:
+  my-db:
+
+  # web_app_entry:
+  #   build: ./web_app_entry
+  #   container_name: web_app_entry
+  #   ports:
+  #     - "5000:5000"
+  #   networks:
+  #     - prod-net-1
+  #   restart: always
+  #   depends_on:
+  #     - analytics_service
