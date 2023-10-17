@@ -1,0 +1,199 @@
+---
+openapi: 3.0.0
+info:
+  title: Electricity Usage API
+  description: This is an API that is used to track device electricy usage throughout multiple homes
+  contact:
+    email: dho95@my.bcit.ca
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  version: 1.0.0
+tags:
+  - name: Device
+    description: Operations available to the electricity usage device
+paths:
+  # /usage/powerusage:
+  #   post:
+  #     tags:
+  #       - Device
+  #     summary: reports the device power usage
+  #     description: adds device power usage
+  #     operationId: app.report_power_usage
+  #     requestBody:
+  #       description: Usage entry
+  #       content:
+  #         application/json:
+  #           schema:
+  #             $ref: "#/components/schemas/PowerUsage"
+  #     responses:
+  #       "201":
+  #         description: Data entered successfully
+  #       "400":
+  #         description: "invalid input, object invalid"
+  # /usage/temperature:
+  #   post:
+  #     tags:
+  #       - Device
+  #     summary: adds a temperature reading
+  #     description: Adds a temperature reading to the system
+  #     operationId: app.report_temperature_reading
+  #     requestBody:
+  #       description: Temperature entry
+  #       content:
+  #         application/json:
+  #           schema:
+  #             $ref: "#/components/schemas/Temperature"
+  #     responses:
+  #       "201":
+  #         description: Data entered successfully
+  #       "400":
+  #         description: "invalid input, object invalid"
+  /usage/powerusagedata:
+    get:
+      tags:
+        - Device
+      summary: gets all power usage data, with timestamp parameter to limit results
+      description: gets all power usage data, with timestamp parameter to limit results
+      operationId: app.get_power_usage
+      parameters:
+        - name: timestamp
+          in: query
+          description: timestamp to limit results
+          required: false
+          schema:
+            type: string
+            format: date-time
+            example: 2023-09-29T09:12:33.001Z
+      responses:
+        "200":
+          description: Data retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/PowerUsage"
+        "400":
+          description: "invalid input, object invalid"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Invalid timestamp"
+  /usage/temperaturedata:
+    get:
+      tags:
+        - Device
+      summary: gets all temperature data, with timestamp parameter to limit results
+      description: gets all temperature data, with timestamp parameter to limit results
+      operationId: app.get_temperature
+      parameters:
+        - name: timestamp
+          in: query
+          description: timestamp to limit results
+          required: false
+          schema:
+            type: string
+            format: date-time
+            example: 2023-09-29T09:12:33.001Z
+      responses:
+        "200":
+          description: Data retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Temperature"
+        "400":
+          description: "invalid input, object invalid"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Invalid timestamp"
+components:
+  schemas:
+    PowerUsage:
+      required:
+        - device_id
+        - electricity_cost_rate
+        - frequency
+        - home_id
+        - timestamp
+        - voltage
+        - watts
+        - trace_id
+      type: object
+      properties:
+        home_id:
+          type: string
+          format: uuid
+          example: d290f1ee-6c54-4b01-90e6-d701748f0851
+        device_id:
+          type: string
+          example: c290f1ee-6c54-4b01-90e6-d701748f0852
+        watts:
+          type: number
+          example: 1000
+        voltage:
+          type: number
+          example: 120
+        frequency:
+          type: number
+          example: 60
+        electricity_cost_rate:
+          type: number
+          example: 0.008
+        timestamp:
+          type: string
+          format: date-time
+          example: 2023-09-29T09:12:33.001Z
+        trace_id:
+          type: string
+          example: 808f486a-7ca5-4088-86c8-4cccc397c4ae
+    Temperature:
+      required:
+        - ambient_humidity
+        - ambient_temperature
+        - atmospheric_pressure
+        - device_id
+        - home_id
+        - outdoor_weather
+        - timestamp
+        - trace_id
+      type: object
+      properties:
+        home_id:
+          type: string
+          format: uuid
+          example: d290f1ee-6c54-4b01-90e6-d701748f0851
+        device_id:
+          type: string
+          example: c290f1ee-6c54-4b01-90e6-d701748f0852
+        ambient_temperature:
+          type: number
+          example: 23.88
+        ambient_humidity:
+          type: number
+          example: 99.2
+        outdoor_weather:
+          type: string
+          example: Sunny
+        atmospheric_pressure:
+          type: number
+          example: 1013.2
+        timestamp:
+          type: string
+          format: date-time
+          example: 2023-09-29T09:12:33.001Z
+        trace_id:
+          type: string
+          example: 808f486a-7ca5-4088-86c8-4cccc397c4ae

@@ -1,0 +1,64 @@
+version: "1.0"
+services:
+  web_app_entry:
+    build: ./web_app_entry
+    container_name: web_app_entry
+    ports:
+      - "5000:5000"
+    networks:
+      - prod-net-1
+    restart: always
+    depends_on:
+      - analytics_service
+
+  auth_app:
+    build: ./auth_app
+    container_name: auth_app
+    ports:
+      - "5001:5001"
+    networks:
+      - prod-net-1
+    restart: always
+    depends_on:
+      - web_app_entry
+      - web_app_result
+
+  analytics_service:
+    build: ./analytics_service
+    container_name: analytics_service
+    ports:
+      - "8080:8080"
+    networks:
+      - prod-net-1
+    restart: always
+
+  mongo_service:
+    build: ./mongo_service
+    container_name: mongo_service
+    networks:
+      - prod-net-1
+    restart: always
+
+  mysql_service:
+    build: ./mysql_service
+    container_name: mysql_service
+    networks:
+      - prod-net-1
+    restart: always
+    depends_on:
+      - mongo_service
+
+  web_app_result:
+    build: ./web_app_result
+    container_name: web_app_result
+    ports:
+      - "5002:5002"
+    networks:
+      - prod-net-1
+    restart: always
+    depends_on:
+      - analytics_service
+
+networks:
+  prod-net-1:
+    driver: bridge

@@ -1,0 +1,55 @@
+openapi: 3.0.0
+info:
+  title: Electricity Usage API - Processing
+  description: This api is the processing service in our project
+  contact:
+    email: dho95@my.bcit.ca
+  version: 1.0.0
+paths:
+  /usage/stats:
+    get:
+      summary: gets the event stats
+      description: gets the event stats
+      operationId: app.get_event_stats
+      responses:
+        "200":
+          description: successfully returned list of power usage and temp reading
+          content:
+            application/json:
+              schema:
+                type: object
+                items:
+                  $ref: "#/components/schemas/ReadingStats"
+        "400":
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Invalid request
+
+components:
+  schemas:
+    ReadingStats:
+      required:
+        - num_powerusage_readings
+        - max_watts_reading
+        - num_temperature_readings
+        - max_temperature_reading
+      type: object
+      properties:
+        num_powerusage_readings:
+          type: integer
+          example: 25000
+        max_watts_reading:
+          type: integer
+          example: 3000
+        num_temperature_readings:
+          type: integer
+          example: 25000
+        max_temperature_reading:
+          type: integer
+          example: 45

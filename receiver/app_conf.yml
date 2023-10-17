@@ -1,0 +1,9 @@
+version: 1
+powerusage:
+  url: http://localhost:8090/usage/powerusage
+temperature:
+  url: http://localhost:8090/usage/temperature
+events:
+  hostname: kafkaprod1.westus3.cloudapp.azure.com
+  port: 9092
+  topic: events
