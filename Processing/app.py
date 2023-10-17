@@ -5,19 +5,15 @@
 
 import connexion
 from connexion import NoContent
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
-from base import Base
+
 # from power_usage import PowerUsage
 # from temperature_reading import TemperatureReading
 import json
 import datetime
 import os
-import threading
 import yaml
 import logging
 import logging.config
-import uuid
 from apscheduler.schedulers.background import BackgroundScheduler
 import requests
 
@@ -38,18 +34,19 @@ logger = logging.getLogger("basicLogger")
 # Base.metadata.bind = DB_ENGINE
 # DB_SESSION = sessionmaker(bind=DB_ENGINE)
 
+
 def get_event_stats():
     logger.info("Request has started")
     #  read current stats from data.json, create if not exist
     try:
-        with open(app_config['datastore']['filename'], "r+") as f:
+        with open(app_config["datastore"]["filename"], "r+") as f:
             stats = json.loads(f.read())
     except:
         with open("data.json", "w") as f:
             f.write("{}")
         logger.error("Statistics do not exist")
         return NoContent, 404
-    
+
     #  convert stats to dict
     stats = dict(stats)
 
@@ -58,16 +55,11 @@ def get_event_stats():
     logger.info("Request has completed")
 
     return stats, 200
-            
-            
-    
-            
-    
 
 
 def write_to_file(power_usage_data, temperature_data, now):
     # Open file and get current stats
-    with open(app_config['datastore']['filename'], "r+") as f:
+    with open(app_config["datastore"]["filename"], "r+") as f:
         stats = json.loads(f.read())
 
     # Get the number of readings from the file
@@ -82,26 +74,30 @@ def write_to_file(power_usage_data, temperature_data, now):
         "num_temperature_readings": num_temperature_readings,
         "max_watts_reading": max_watts_reading,
         "max_temperature_reading": max_temperature_reading,
-        "last_updated": last_updated
+        "last_updated": last_updated,
     }
 
     # Update power usage data if available
     if len(power_usage_data.json()) > 0:
         dict["num_powerusage_readings"] += len(power_usage_data.json())
-        max_power_reading = max(power_usage_data.json(), key=lambda x: x["watts"])["watts"]
+        max_power_reading = max(power_usage_data.json(), key=lambda x: x["watts"])[
+            "watts"
+        ]
         dict["max_watts_reading"] = max(max_power_reading, max_watts_reading)
 
     # Update temperature data if available
     if len(temperature_data.json()) > 0:
         dict["num_temperature_readings"] += len(temperature_data.json())
-        max_temp_reading = max(temperature_data.json(), key=lambda x: x["ambient_temperature"])["ambient_temperature"]
+        max_temp_reading = max(
+            temperature_data.json(), key=lambda x: x["ambient_temperature"]
+        )["ambient_temperature"]
         dict["max_temperature_reading"] = max(max_temp_reading, max_temperature_reading)
 
     dict["last_updated"] = now
 
     json_convert = json.dumps(dict, indent=4)
 
-    with open(app_config['datastore']['filename'], "w") as f:
+    with open(app_config["datastore"]["filename"], "w") as f:
         f.write(json_convert)
 
     logger.debug("Writing to file - Updated data: %s", json_convert)
@@ -112,16 +108,16 @@ def write_to_file(power_usage_data, temperature_data, now):
 def populate_stats():
     logger.info("Start Periodic Processing")
     #  read current stats from data.json, create if not exist
-    try: 
-        with open(app_config['datastore']['filename'], "r+") as f:
+    try:
+        with open(app_config["datastore"]["filename"], "r+") as f:
             # if empty, create default stats
-            if os.stat(app_config['datastore']['filename']).st_size == 0:
+            if os.stat(app_config["datastore"]["filename"]).st_size == 0:
                 stats = {
                     "num_powerusage_readings": 0,
                     "max_watts_reading": 0,
                     "num_temperature_readings": 0,
                     "max_temperature_reading": 0,
-                    "last_updated": "2021-02-05T12:39:16Z"
+                    "last_updated": "2021-02-05T12:39:16Z",
                 }
                 f.write(json.dumps(stats))
                 return
@@ -134,7 +130,7 @@ def populate_stats():
                 "max_watts_reading": 0,
                 "num_temperature_readings": 0,
                 "max_temperature_reading": 0,
-                "last_updated": "2021-02-05T12:39:16Z"
+                "last_updated": "2021-02-05T12:39:16Z",
             }
             f.write(stats)
             # default stats
@@ -142,41 +138,49 @@ def populate_stats():
     #  get current date time
     now = datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%SZ")
 
-
     # get last created date time, convert to datetime object
     last_updated = stats["last_updated"]
     # headers
-    headers = {
-        "Content-Type": "application/json"
-    }
-    
+    headers = {"Content-Type": "application/json"}
+
     #  get power usage stats
     power_usage_params = {"timestamp": last_updated}
-    power_usage_data = requests.get(app_config['eventstore']['url'] + "/usage/powerusagedata", params=power_usage_params, headers=headers)
+    power_usage_data = requests.get(
+        app_config["eventstore"]["url"] + "/usage/powerusagedata",
+        params=power_usage_params,
+        headers=headers,
+    )
     logger.info("Number of events from power usage: %s", len(power_usage_data.json()))
 
     #  log error if not 200
     if power_usage_data.status_code != 200:
         logger.error("Error, did not receive 200 status code from power usage")
-    
+
     #  get temperature stats
     temperature_params = {"timestamp": last_updated}
-    temperature_data = requests.get(app_config['eventstore']['url'] + "/usage/temperaturedata", params=temperature_params, headers=headers)
+    temperature_data = requests.get(
+        app_config["eventstore"]["url"] + "/usage/temperaturedata",
+        params=temperature_params,
+        headers=headers,
+    )
     logger.info("Number of events from temperature: %s", len(temperature_data.json()))
 
     # log error
     if temperature_data.status_code != 200:
-        logger.error(f"Error, did not receive 200 status code from temperature, got {temperature_data.status_code}")
+        logger.error(
+            f"Error, did not receive 200 status code from temperature, got {temperature_data.status_code}"
+        )
 
     #  write new data to file
     write_to_file(power_usage_data, temperature_data, now)
-    
+
 
 def init_scheduler():
-    sched =  BackgroundScheduler(daemon=True)
-    sched.add_job(populate_stats, 'interval', seconds=app_config['scheduler']['period_sec'])
+    sched = BackgroundScheduler(daemon=True)
+    sched.add_job(
+        populate_stats, "interval", seconds=app_config["scheduler"]["period_sec"]
+    )
     sched.start()
-
 
 
 # app config
