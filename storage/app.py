@@ -12,15 +12,12 @@ from power_usage import PowerUsage
 from temperature_reading import TemperatureReading
 import json
 import datetime
-import os
 from threading import Thread
 import yaml
 import logging
 import logging.config
-import uuid
 from pykafka import KafkaClient
 from pykafka.common import OffsetType
-
 
 
 # DB_ENGINE = create_engine("sqlite:///readings.sqlite")
@@ -36,12 +33,16 @@ with open("log_conf.yml", "r") as f:
 
 logger = logging.getLogger("basicLogger")
 
-DB_ENGINE = create_engine(f"mysql+pymysql://{app_config['datastore']['user']}:{app_config['datastore']['password']}@{app_config['datastore']['hostname']}:{app_config['datastore']['port']}/{app_config['datastore']['db']}")
+DB_ENGINE = create_engine(
+    f"mysql+pymysql://{app_config['datastore']['user']}:{app_config['datastore']['password']}@{app_config['datastore']['hostname']}:{app_config['datastore']['port']}/{app_config['datastore']['db']}"
+)
 Base.metadata.bind = DB_ENGINE
 DB_SESSION = sessionmaker(bind=DB_ENGINE)
 # increase timeout
 DB_SESSION.configure(bind=DB_ENGINE, expire_on_commit=False)
-logger.info(f"Connecting to DB. Hostname: {app_config['datastore']['hostname']} port: {app_config['datastore']['port']}")
+logger.info(
+    f"Connecting to DB. Hostname: {app_config['datastore']['hostname']} port: {app_config['datastore']['port']}"
+)
 
 
 # functions for handling the 2 requests
@@ -58,20 +59,19 @@ logger.info(f"Connecting to DB. Hostname: {app_config['datastore']['hostname']} 
 #                     body["frequency"],
 #                     body["electricity_cost_rate"],
 #                     body["trace_id"])
-    
+
 #     session.add(pu)
 #     session.commit()
 #     session.close()
 
 #     logger.debug(f"Stored Event [power usage] request with a trace id of {body['trace_id']}")
-    
+
 #     return NoContent, 201
 
 
 # def report_temperature_reading(body):
 #     # log_events(body, "temperature_reading")
 #     session = DB_SESSION()
-
 
 
 #     tr = TemperatureReading(body["home_id"],
@@ -82,14 +82,14 @@ logger.info(f"Connecting to DB. Hostname: {app_config['datastore']['hostname']} 
 #                             body["outdoor_weather"],
 #                             body["atmospheric_pressure"],
 #                             body["trace_id"])
-    
+
 #     session.add(tr)
 #     session.commit()
 #     session.close()
 
 #     logger.debug(f"Stored Event [temperature] request with a trace id of {body['trace_id']}")
 
-    
+
 #     return NoContent, 201
 
 
@@ -97,103 +97,124 @@ def get_power_usage(timestamp):
     session = DB_SESSION()
     timestamp_converted = datetime.datetime.strptime(timestamp, "%Y-%m-%dT%H:%M:%SZ")
 
-    results = session.query(PowerUsage).filter(PowerUsage.date_created >= timestamp_converted)
+    results = session.query(PowerUsage).filter(
+        PowerUsage.date_created >= timestamp_converted
+    )
 
     results_list = []
 
     for result in results:
         results_list.append(result.to_dict())
 
-    session.close() 
+    session.close()
 
-    logger.info("Query for power usage readings after %s returns %d results", timestamp, len(results_list))
+    logger.info(
+        "Query for power usage readings after %s returns %d results",
+        timestamp,
+        len(results_list),
+    )
 
     return results_list, 200
+
 
 def get_temperature(timestamp):
     session = DB_SESSION()
     # convert timestamp to datetime object with milliseconds
     timestamp_converted = datetime.datetime.strptime(timestamp, "%Y-%m-%dT%H:%M:%SZ")
 
-    results = session.query(TemperatureReading).filter(TemperatureReading.date_created >= timestamp_converted)
+    results = session.query(TemperatureReading).filter(
+        TemperatureReading.date_created >= timestamp_converted
+    )
 
     results_list = []
 
     for result in results:
         results_list.append(result.to_dict())
 
-    session.close() 
+    session.close()
 
-    logger.info("Query for temperature readings after %s returns %d results", timestamp, len(results_list))
+    logger.info(
+        "Query for temperature readings after %s returns %d results",
+        timestamp,
+        len(results_list),
+    )
 
     return results_list, 200
 
 
 def process_messages():
-    """ Process event messages """
-    hostname = "%s:%d" % (app_config["events"]["hostname"],
-    app_config["events"]["port"])
+    """Process event messages"""
+    hostname = "%s:%d" % (
+        app_config["events"]["hostname"],
+        app_config["events"]["port"],
+    )
     client = KafkaClient(hosts=hostname)
     topic = client.topics[str.encode(app_config["events"]["topic"])]
     # Create a consume on a consumer group, that only reads new messages
     # (uncommitted messages) when the service re-starts (i.e., it doesn't
     # read all the old messages from the history in the message queue).
-    consumer = topic.get_simple_consumer(consumer_group=b'event_group',
-    reset_offset_on_start=False,
-    auto_offset_reset=OffsetType.LATEST)
+    consumer = topic.get_simple_consumer(
+        consumer_group=b"event_group",
+        reset_offset_on_start=False,
+        auto_offset_reset=OffsetType.LATEST,
+    )
     # This is blocking - it will wait for a new message
     for msg in consumer:
-        msg_str = msg.value.decode('utf-8')
+        msg_str = msg.value.decode("utf-8")
         msg = json.loads(msg_str)
         logger.info("Message: %s" % msg)
         payload = msg["payload"]
-        if msg["type"] == "power_usage": # Change this to your event type
-        # Store the event1 (i.e., the payload) to the DB
+        if msg["type"] == "power_usage":  # Change this to your event type
+            # Store the event1 (i.e., the payload) to the DB
 
             session = DB_SESSION()
 
-            pu = PowerUsage(payload["home_id"],
-                            payload["device_id"],
-                            payload["timestamp"],
-                            payload["watts"],
-                            payload["voltage"],
-                            payload["frequency"],
-                            payload["electricity_cost_rate"],
-                            payload["trace_id"])
-            
+            pu = PowerUsage(
+                payload["home_id"],
+                payload["device_id"],
+                payload["timestamp"],
+                payload["watts"],
+                payload["voltage"],
+                payload["frequency"],
+                payload["electricity_cost_rate"],
+                payload["trace_id"],
+            )
+
             session.add(pu)
             session.commit()
             session.close()
 
-            logger.debug(f"Stored Event [power usage] request with a trace id of {payload['trace_id']}")
+            logger.debug(
+                f"Stored Event [power usage] request with a trace id of {payload['trace_id']}"
+            )
 
-        elif msg["type"] == "temperature_reading": # Change this to your event type
-        # Store the event2 (i.e., the payload) to the DB
-            
-                session = DB_SESSION()
-    
-    
-    
-                tr = TemperatureReading(payload["home_id"],
-                                        payload["device_id"],
-                                        payload["timestamp"],
-                                        payload["ambient_temperature"],
-                                        payload["ambient_humidity"],
-                                        payload["outdoor_weather"],
-                                        payload["atmospheric_pressure"],
-                                        payload["trace_id"])
-                
-                session.add(tr)
-                session.commit()
-                session.close()
-    
-                logger.debug(f"Stored Event [temperature] request with a trace id of {payload['trace_id']}")
+        elif msg["type"] == "temperature_reading":  # Change this to your event type
+            # Store the event2 (i.e., the payload) to the DB
+
+            session = DB_SESSION()
+
+            tr = TemperatureReading(
+                payload["home_id"],
+                payload["device_id"],
+                payload["timestamp"],
+                payload["ambient_temperature"],
+                payload["ambient_humidity"],
+                payload["outdoor_weather"],
+                payload["atmospheric_pressure"],
+                payload["trace_id"],
+            )
+
+            session.add(tr)
+            session.commit()
+            session.close()
+
+            logger.debug(
+                f"Stored Event [temperature] request with a trace id of {payload['trace_id']}"
+            )
         else:
             logger.error("Unexpected event type: %s" % msg["type"])
         # Commit the new message as being read
         consumer.commit_offsets()
-
-
 
 
 # app config
