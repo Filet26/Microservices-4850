@@ -55,31 +55,21 @@ services:
     ports:
       - "8090:8090"
     depends_on:
-      - kafka, db
+      - "kafka"
+      - "db"
   processing:
     image: processing
     ports:
       - "8100:8100"
     network_mode: "host"
     depends_on:
-      - storage
+      - "storage"
   audit_log:
     image: audit_log
     ports:
       - "8110:8110"
     depends_on:
-      - kafka
+      - "kafka"
 
 volumes:
   my-db:
-
-  # web_app_entry:
-  #   build: ./web_app_entry
-  #   container_name: web_app_entry
-  #   ports:
-  #     - "5000:5000"
-  #   networks:
-  #     - prod-net-1
-  #   restart: always
-  #   depends_on:
-  #     - analytics_service
