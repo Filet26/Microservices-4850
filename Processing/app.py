@@ -113,7 +113,7 @@ def populate_stats():
     try:
         with open(app_config["datastore"]["filename"], "r+") as f:
             # if empty, create default stats
-            if os.stat(app_config["datastore"]["filename"]).st_size == 0:
+            if os.stat(app_config["datastore"]["filename"]).st_size <= 4:
                 stats = {
                     "num_powerusage_readings": 0,
                     "max_watts_reading": 0,
