@@ -5,7 +5,7 @@ import EndpointAudit from "./components/EndpointAudit";
 import AppStats from "./components/AppStats";
 
 function App() {
-  const endpoints = ["power_usage", "temperature_reading"];
+  const endpoints = ["powerusageaudit", "temperaturedataaudit"];
 
   const rendered_endpoints = endpoints.map((endpoint) => {
     return <EndpointAudit key={endpoint} endpoint={endpoint} />;
