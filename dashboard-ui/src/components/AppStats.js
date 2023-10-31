@@ -49,11 +49,13 @@ export default function AppStats() {
               </td>
             </tr>
             <tr>
-              <td colspan="2">Max BP Systolic: {stats["max_watts_reading"]}</td>
+              <td colspan="2">
+                Max Watts Readings: {stats["max_watts_reading"]}
+              </td>
             </tr>
             <tr>
               <td colspan="2">
-                Max BR Diastolic: {stats["max_temperature_reading"]}
+                Max Temperature Reading: {stats["max_temperature_reading"]}
               </td>
             </tr>
           </tbody>
