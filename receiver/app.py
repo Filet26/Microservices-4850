@@ -54,7 +54,6 @@ def kafak_connect():
             logger.error("Error connecting to Kafka: %s", e)
             curr_retries += 1
             time.sleep(app_config["Kafka"]["retry_timeout_sec"])
-            continue
 
 
 # functions for handling the 2 requests
