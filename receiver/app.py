@@ -48,6 +48,8 @@ def kafak_connect():
                 hosts=f"{app_config['events']['hostname']}:{app_config['events']['port']}"
             )
             topic = client.topics[str.encode(app_config["events"]["topic"])]
+            logger.info("Connected to Kafka!")
+            break
         except Exception as e:
             logger.error("Error connecting to Kafka: %s", e)
             curr_retries += 1
