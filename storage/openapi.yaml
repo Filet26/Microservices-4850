@@ -57,7 +57,7 @@ paths:
       description: gets all power usage data, with timestamp parameter to limit results
       operationId: app.get_power_usage
       parameters:
-        - name: timestamp
+        - name: start_timestamp
           in: query
           description: timestamp to limit results
           required: false
@@ -65,6 +65,14 @@ paths:
             type: string
             format: date-time
             example: 2023-09-29T09:12:33.001Z
+        - name: end_timestamp
+          in: query
+            description: timestamp to limit results
+            required: false
+            schema:
+              type: string
+              format: date-time
+              example: 2023-09-29T09:12:33.001Z
       responses:
         "200":
           description: Data retrieved successfully
@@ -92,7 +100,7 @@ paths:
       description: gets all temperature data, with timestamp parameter to limit results
       operationId: app.get_temperature
       parameters:
-        - name: timestamp
+        - name: start_timestamp
           in: query
           description: timestamp to limit results
           required: false
@@ -100,6 +108,14 @@ paths:
             type: string
             format: date-time
             example: 2023-09-29T09:12:33.001Z
+        - name: end_timestamp
+          in: query
+            description: timestamp to limit results
+            required: false
+            schema:
+              type: string
+              format: date-time
+              example: 2023-09-29T09:12:33.001Z
       responses:
         "200":
           description: Data retrieved successfully

@@ -95,9 +95,11 @@ logger.info(
 #     return NoContent, 201
 
 
-def get_power_usage(timestamp, end_timestamp):
+def get_power_usage(start_timestamp, end_timestamp):
     session = DB_SESSION()
-    timestamp_converted = datetime.datetime.strptime(timestamp, "%Y-%m-%dT%H:%M:%SZ")
+    timestamp_converted = datetime.datetime.strptime(
+        start_timestamp, "%Y-%m-%dT%H:%M:%SZ"
+    )
     end_timestamp_converted = datetime.datetime.strptime(
         end_timestamp, "%Y-%m-%dT%H:%M:%SZ"
     )
@@ -118,17 +120,19 @@ def get_power_usage(timestamp, end_timestamp):
 
     logger.info(
         "Query for power usage readings after %s returns %d results",
-        timestamp,
+        start_timestamp,
         len(results_list),
     )
 
     return results_list, 200
 
 
-def get_temperature(timestamp, end_timestamp):
+def get_temperature(start_timestamp, end_timestamp):
     session = DB_SESSION()
     # convert timestamp to datetime object with milliseconds
-    timestamp_converted = datetime.datetime.strptime(timestamp, "%Y-%m-%dT%H:%M:%SZ")
+    timestamp_converted = datetime.datetime.strptime(
+        start_timestamp, "%Y-%m-%dT%H:%M:%SZ"
+    )
     end_timestamp_converted = datetime.datetime.strptime(
         end_timestamp, "%Y-%m-%dT%H:%M:%SZ"
     )
@@ -149,7 +153,7 @@ def get_temperature(timestamp, end_timestamp):
 
     logger.info(
         "Query for temperature readings after %s returns %d results",
-        timestamp,
+        start_timestamp,
         len(results_list),
     )
 
