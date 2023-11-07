@@ -9,3 +9,6 @@ events:
   hostname: kafkaprod1.westus3.cloudapp.azure.com
   port: 9092
   topic: events
+Kafka:
+  retries: 10
+  retry_timeout_sec: 3

@@ -147,9 +147,13 @@ def populate_stats():
 
     #  get power usage stats
     power_usage_params = {"timestamp": last_updated}
+
     power_usage_data = requests.get(
-        app_config["eventstore"]["url"] + "/usage/powerusagedata",
-        params=power_usage_params,
+        app_config["eventstore"]["url"]
+        + "/usage/powerusagedata?start_timestamp="
+        + last_updated
+        + "&end_timestamp="
+        + now,
         headers=headers,
     )
     logger.info("Number of events from power usage: %s", len(power_usage_data.json()))
@@ -160,9 +164,13 @@ def populate_stats():
 
     #  get temperature stats
     temperature_params = {"timestamp": last_updated}
+
     temperature_data = requests.get(
-        app_config["eventstore"]["url"] + "/usage/temperaturedata",
-        params=temperature_params,
+        app_config["eventstore"]["url"]
+        + "/usage/temperaturedata?start_timestamp="
+        + last_updated
+        + "&end_timestamp="
+        + now,
         headers=headers,
     )
     logger.info("Number of events from temperature: %s", len(temperature_data.json()))

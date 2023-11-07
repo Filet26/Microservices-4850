@@ -15,6 +15,7 @@ import logging
 import logging.config
 import uuid
 from pykafka import KafkaClient
+import time
 
 #  constants
 # MAX_EVENTS = 10
@@ -35,6 +36,25 @@ with open("log_conf.yml", "r") as f:
 logger = logging.getLogger("basicLogger")
 
 
+def kafak_connect():
+    retries = app_config["Kafka"]["retries"]
+    curr_retries = 0
+    global client
+    global topic
+    while curr_retries <= retries:
+        logger.info(f"Trying to connect to Kafka, retry attempt {curr_retries}")
+        try:
+            client = KafkaClient(
+                hosts=f"{app_config['events']['hostname']}:{app_config['events']['port']}"
+            )
+            topic = client.topics[str.encode(app_config["events"]["topic"])]
+        except Exception as e:
+            logger.error("Error connecting to Kafka: %s", e)
+            curr_retries += 1
+            time.sleep(app_config["Kafka"]["retry_timeout_sec"])
+            continue
+
+
 # functions for handling the 2 requests
 def report_power_usage(body):
     # log_events(body, "power_usage")
@@ -51,20 +71,20 @@ def report_power_usage(body):
 
     # response = requests.post(url, json=body, headers=headers)
 
- 
-    client = KafkaClient(hosts=f"{app_config['events']['hostname']}:{app_config['events']['port']}")
-    topic = client.topics[str.encode(app_config["events"]["topic"])]
+    # client = KafkaClient(
+    #     hosts=f"{app_config['events']['hostname']}:{app_config['events']['port']}"
+    # )
+    # topic = client.topics[str.encode(app_config["events"]["topic"])]
     producer = topic.get_sync_producer()
-    msg = { "type": "power_usage",
-    "datetime" :
-    datetime.datetime.now().strftime(
-    "%Y-%m-%dT%H:%M:%S"),
-    "payload": body }
+    msg = {
+        "type": "power_usage",
+        "datetime": datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%S"),
+        "payload": body,
+    }
     msg_str = json.dumps(msg)
-    producer.produce(msg_str.encode('utf-8'))
+    producer.produce(msg_str.encode("utf-8"))
 
-    logger.info(
-        f"Returned event [power usage] response: {id} with status 201")
+    logger.info(f"Returned event [power usage] response: {id} with status 201")
 
     return NoContent, 201
 
@@ -84,21 +104,20 @@ def report_temperature_reading(body):
 
     # response = requests.post(url, json=body, headers=headers)
 
-     
-    client = KafkaClient(hosts=f"{app_config['events']['hostname']}:{app_config['events']['port']}")
-    topic = client.topics[str.encode(app_config["events"]["topic"])]
+    # client = KafkaClient(
+    #     hosts=f"{app_config['events']['hostname']}:{app_config['events']['port']}"
+    # )
+    # topic = client.topics[str.encode(app_config["events"]["topic"])]
     producer = topic.get_sync_producer()
-    msg = { "type": "temperature_reading",
-    "datetime" :
-    datetime.datetime.now().strftime(
-    "%Y-%m-%dT%H:%M:%S"),
-    "payload": body }
+    msg = {
+        "type": "temperature_reading",
+        "datetime": datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%S"),
+        "payload": body,
+    }
     msg_str = json.dumps(msg)
-    producer.produce(msg_str.encode('utf-8'))
+    producer.produce(msg_str.encode("utf-8"))
 
-    logger.info(
-        f"Returned event [temperature] response: {id} with status 201"
-    )
+    logger.info(f"Returned event [temperature] response: {id} with status 201")
 
     # log_events(body, "temperature_reading")
     return NoContent, 201
@@ -110,4 +129,5 @@ app.add_api("openapi.yaml", strict_validation=True, validate_responses=True)
 
 
 if __name__ == "__main__":
+    kafak_connect()
     app.run(port=8080, debug=True)

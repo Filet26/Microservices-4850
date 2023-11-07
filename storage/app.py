@@ -6,6 +6,7 @@
 import connexion
 from connexion import NoContent
 from sqlalchemy import create_engine
+from sqlalchemy import and_
 from sqlalchemy.orm import sessionmaker
 from base import Base
 from power_usage import PowerUsage
@@ -18,6 +19,7 @@ import logging
 import logging.config
 from pykafka import KafkaClient
 from pykafka.common import OffsetType
+import time
 
 
 # DB_ENGINE = create_engine("sqlite:///readings.sqlite")
@@ -93,12 +95,18 @@ logger.info(
 #     return NoContent, 201
 
 
-def get_power_usage(timestamp):
+def get_power_usage(timestamp, end_timestamp):
     session = DB_SESSION()
     timestamp_converted = datetime.datetime.strptime(timestamp, "%Y-%m-%dT%H:%M:%SZ")
+    end_timestamp_converted = datetime.datetime.strptime(
+        end_timestamp, "%Y-%m-%dT%H:%M:%SZ"
+    )
 
     results = session.query(PowerUsage).filter(
-        PowerUsage.date_created >= timestamp_converted
+        and_(
+            PowerUsage.date_created >= timestamp_converted,
+            PowerUsage.date_created < end_timestamp_converted,
+        )
     )
 
     results_list = []
@@ -117,13 +125,19 @@ def get_power_usage(timestamp):
     return results_list, 200
 
 
-def get_temperature(timestamp):
+def get_temperature(timestamp, end_timestamp):
     session = DB_SESSION()
     # convert timestamp to datetime object with milliseconds
     timestamp_converted = datetime.datetime.strptime(timestamp, "%Y-%m-%dT%H:%M:%SZ")
+    end_timestamp_converted = datetime.datetime.strptime(
+        end_timestamp, "%Y-%m-%dT%H:%M:%SZ"
+    )
 
     results = session.query(TemperatureReading).filter(
-        TemperatureReading.date_created >= timestamp_converted
+        and_(
+            TemperatureReading.date_created >= timestamp_converted,
+            TemperatureReading.date_created < end_timestamp_converted,
+        )
     )
 
     results_list = []
@@ -148,8 +162,20 @@ def process_messages():
         app_config["events"]["hostname"],
         app_config["events"]["port"],
     )
-    client = KafkaClient(hosts=hostname)
-    topic = client.topics[str.encode(app_config["events"]["topic"])]
+
+    retries = app_config["Kafka"]["retries"]
+    curr_retries = 0
+    while curr_retries <= retries:
+        logger.info(f"Trying to connect to Kafka, retry attempt {curr_retries}")
+        try:
+            client = KafkaClient(hosts=hostname)
+            topic = client.topics[str.encode(app_config["events"]["topic"])]
+        except Exception as e:
+            logger.error("Error connecting to Kafka: %s", e)
+            curr_retries += 1
+            time.sleep(app_config["Kafka"]["retry_timeout_sec"])
+            continue
+
     # Create a consume on a consumer group, that only reads new messages
     # (uncommitted messages) when the service re-starts (i.e., it doesn't
     # read all the old messages from the history in the message queue).
