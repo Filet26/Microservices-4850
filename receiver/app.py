@@ -36,23 +36,22 @@ with open("log_conf.yml", "r") as f:
 logger = logging.getLogger("basicLogger")
 
 
-def kafak_connect():
-    retries = app_config["Kafka"]["retries"]
-    curr_retries = 0
-    global client
-    global topic
-    while curr_retries <= retries:
-        logger.info(f"Trying to connect to Kafka, retry attempt {curr_retries}")
-        try:
-            client = KafkaClient(
-                hosts=f"{app_config['events']['hostname']}:{app_config['events']['port']}"
-            )
-            topic = client.topics[str.encode(app_config["events"]["topic"])]
-        except Exception as e:
-            logger.error("Error connecting to Kafka: %s", e)
-            curr_retries += 1
-            time.sleep(app_config["Kafka"]["retry_timeout_sec"])
-            continue
+retries = app_config["Kafka"]["retries"]
+curr_retries = 0
+global client
+global topic
+while curr_retries <= retries:
+    logger.info(f"Trying to connect to Kafka, retry attempt {curr_retries}")
+    try:
+        client = KafkaClient(
+            hosts=f"{app_config['events']['hostname']}:{app_config['events']['port']}"
+        )
+        topic = client.topics[str.encode(app_config["events"]["topic"])]
+    except Exception as e:
+        logger.error("Error connecting to Kafka: %s", e)
+        curr_retries += 1
+        time.sleep(app_config["Kafka"]["retry_timeout_sec"])
+        continue
 
 
 # functions for handling the 2 requests
@@ -129,5 +128,4 @@ app.add_api("openapi.yaml", strict_validation=True, validate_responses=True)
 
 
 if __name__ == "__main__":
-    kafak_connect()
     app.run(port=8080, debug=True)
