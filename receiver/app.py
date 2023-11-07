@@ -40,6 +40,7 @@ retries = app_config["Kafka"]["retries"]
 curr_retries = 0
 global client
 global topic
+global producer
 while curr_retries <= retries:
     logger.info(f"Trying to connect to Kafka, retry attempt {curr_retries}")
     try:
@@ -47,6 +48,7 @@ while curr_retries <= retries:
             hosts=f"{app_config['events']['hostname']}:{app_config['events']['port']}"
         )
         topic = client.topics[str.encode(app_config["events"]["topic"])]
+        producer = topic.get_sync_producer()
         logger.info("Connected to Kafka!")
         break
     except Exception as e:
@@ -75,7 +77,6 @@ def report_power_usage(body):
     #     hosts=f"{app_config['events']['hostname']}:{app_config['events']['port']}"
     # )
     # topic = client.topics[str.encode(app_config["events"]["topic"])]
-    producer = topic.get_sync_producer()
     msg = {
         "type": "power_usage",
         "datetime": datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%S"),
@@ -108,7 +109,6 @@ def report_temperature_reading(body):
     #     hosts=f"{app_config['events']['hostname']}:{app_config['events']['port']}"
     # )
     # topic = client.topics[str.encode(app_config["events"]["topic"])]
-    producer = topic.get_sync_producer()
     msg = {
         "type": "temperature_reading",
         "datetime": datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%S"),
