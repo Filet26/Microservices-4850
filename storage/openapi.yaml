@@ -67,12 +67,12 @@ paths:
             example: 2023-09-29T09:12:33.001Z
         - name: end_timestamp
           in: query
-            description: timestamp to limit results
-            required: false
-            schema:
-              type: string
-              format: date-time
-              example: 2023-09-29T09:12:33.001Z
+          description: timestamp to limit results
+          required: false
+          schema:
+            type: string
+            format: date-time
+            example: 2023-09-29T09:12:33.001Z
       responses:
         "200":
           description: Data retrieved successfully
@@ -110,12 +110,12 @@ paths:
             example: 2023-09-29T09:12:33.001Z
         - name: end_timestamp
           in: query
-            description: timestamp to limit results
-            required: false
-            schema:
-              type: string
-              format: date-time
-              example: 2023-09-29T09:12:33.001Z
+          description: timestamp to limit results
+          required: false
+          schema:
+            type: string
+            format: date-time
+            example: 2023-09-29T09:12:33.001Z
       responses:
         "200":
           description: Data retrieved successfully
