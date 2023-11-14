@@ -147,7 +147,7 @@ def populate_stats():
             else:
                 stats = json.loads(f.read())
     except:
-        with open("data.json", "w") as f:
+        with open("/data/data.json", "w") as f:
             stats = {
                 "num_powerusage_readings": 0,
                 "max_watts_reading": 0,
@@ -155,7 +155,7 @@ def populate_stats():
                 "max_temperature_reading": 0,
                 "last_updated": "2021-02-05T12:39:16Z",
             }
-            f.write(stats)
+            f.write(json.dumps(stats))
             # default stats
 
     #  get current date time
