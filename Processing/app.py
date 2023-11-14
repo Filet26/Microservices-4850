@@ -65,7 +65,7 @@ def get_event_stats():
         with open(app_config["datastore"]["filename"], "r+") as f:
             stats = json.loads(f.read())
     except:
-        with open("data.json", "w") as f:
+        with open("/data/data.json", "w") as f:
             f.write("{}")
         logger.error("Statistics do not exist")
         return NoContent, 404
