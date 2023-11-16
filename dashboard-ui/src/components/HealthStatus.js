@@ -42,7 +42,7 @@ export default function HeathStatus() {
               <th>Health Check Status</th>
             </tr>
             <tr>
-              <td># Reciever Status: {stats["receiver"]}</td>
+              <td># Receiver Status: {stats["receiver"]}</td>
             </tr>
             <tr>
               <td># Processing Status: {stats["processing"]}</td>
