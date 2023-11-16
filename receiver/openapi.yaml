@@ -51,6 +51,7 @@ paths:
           description: Data entered successfully
         "400":
           description: "invalid input, object invalid"
+
   /usage/health:
     get:
       tags:
@@ -61,6 +62,7 @@ paths:
       responses:
         "200":
           description: "application is healthy"
+components:
   schemas:
     PowerUsage:
       required:
