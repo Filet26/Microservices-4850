@@ -113,7 +113,7 @@ def get_temperature_reading(index):
     return {"message": "Not Found"}, 404
 
 
-def get_heathcheck():
+def get_healthcheck():
     return NoContent, 200
 
 

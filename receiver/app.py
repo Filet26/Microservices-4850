@@ -143,7 +143,7 @@ def report_temperature_reading(body):
     return NoContent, 201
 
 
-def get_heathcheck():
+def get_healthcheck():
     return NoContent, 200
 
 

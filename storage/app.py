@@ -267,7 +267,7 @@ def process_messages():
         consumer.commit_offsets()
 
 
-def get_heathcheck():
+def get_healthcheck():
     return NoContent, 200
 
 

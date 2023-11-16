@@ -36,7 +36,7 @@ paths:
         - Device
       summary: get status of application
       description: get status of application
-      operationId: app.get_health
+      operationId: app.get_heathcheck
       responses:
         "200":
           description: "application is healthy"

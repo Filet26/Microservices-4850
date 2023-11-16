@@ -214,7 +214,7 @@ def init_scheduler():
     sched.start()
 
 
-def get_heathcheck():
+def get_healthcheck():
     return NoContent, 200
 
 
