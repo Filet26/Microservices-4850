@@ -96,6 +96,13 @@ services:
       - /home/azureuser/logs:/logs
     depends_on:
       - "kafka"
+    health:
+      image: health
+      ports:
+        - "8120:8120"
+      volumes:
+        - /home/azureuser/config/health:/config
+        - /home/azureuser/logs:/logs
   dashboard:
     image: dashboard
     ports:
