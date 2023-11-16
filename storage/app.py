@@ -267,6 +267,10 @@ def process_messages():
         consumer.commit_offsets()
 
 
+def get_heathcheck():
+    return NoContent, 200
+
+
 # app config
 app = connexion.FlaskApp(__name__, specification_dir="./")
 app.add_api("openapi.yaml", strict_validation=True, validate_responses=True)

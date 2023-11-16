@@ -135,6 +135,16 @@ paths:
                   message:
                     type: string
                     example: "Invalid timestamp"
+  /usage/health:
+    get:
+      tags:
+        - Device
+      summary: get status of application
+      description: get status of application
+      operationId: app.get_health
+      reponses:
+        "200":
+          description: "application is healthy"
 components:
   schemas:
     PowerUsage:

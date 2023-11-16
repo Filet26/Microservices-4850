@@ -1,0 +1,66 @@
+openapi: 3.0.0
+info:
+  title: Health Check API
+  description: provides health status of all services
+  contact:
+    email: dho95@my.bcit.ca
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  version: 1.0.0
+tags:
+  - name: Device
+    description: audit operations
+paths:
+  /usage/heath_status:
+    get:
+      tags:
+        - Device
+      summary: get power usage data entry from history
+      description: gets power usage data entry from history
+      operationId: app.get_health_status
+      responses:
+        "200":
+          description: successfully returned health check data
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/health_status"
+        "400":
+          description: "invalid request"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Invalid index"
+components:
+  schemas:
+    health_status:
+      required:
+        - receiver
+        - storage
+        - processing
+        - audit
+        - last_updated
+      type: object
+      properties:
+        receiver:
+          type: string
+          example: "Running"
+        storage:
+          type: string
+          example: "Running"
+        processing:
+          type: string
+          example: "Running"
+        audit:
+          type: string
+          example: "Running"
+        last_updated:
+          type: string
+          example: "2023-08-17 22:00:00"

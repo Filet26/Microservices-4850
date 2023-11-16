@@ -51,7 +51,16 @@ paths:
           description: Data entered successfully
         "400":
           description: "invalid input, object invalid"
-components:
+  /usage/health:
+    get:
+      tags:
+        - Device
+      summary: get status of application
+      description: get status of application
+      operationId: app.get_health
+      reponses:
+        "200":
+          description: "application is healthy"
   schemas:
     PowerUsage:
       required:
