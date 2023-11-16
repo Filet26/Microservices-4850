@@ -58,7 +58,7 @@ paths:
       summary: get status of application
       description: get status of application
       operationId: app.get_health
-      reponses:
+      responses:
         "200":
           description: "application is healthy"
   schemas:
