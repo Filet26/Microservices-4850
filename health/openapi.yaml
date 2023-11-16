@@ -12,7 +12,7 @@ tags:
   - name: Device
     description: audit operations
 paths:
-  /usage/heath_status:
+  /usage/health_status:
     get:
       tags:
         - Device
@@ -25,7 +25,7 @@ paths:
           content:
             application/json:
               schema:
-                type: array
+                type: object
                 items:
                   $ref: "#/components/schemas/health_status"
         "400":

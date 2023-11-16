@@ -3,6 +3,7 @@ import "./App.css";
 
 import EndpointAudit from "./components/EndpointAudit";
 import AppStats from "./components/AppStats";
+import HealthStatus from "./components/HealthStatus";
 
 function App() {
   const endpoints = ["powerusageaudit", "temperaturedataaudit"];
@@ -22,6 +23,7 @@ function App() {
       />
       <div>
         <AppStats />
+        <HealthStatus />
         <h1>Audit Endpoints ඞ</h1>
         {rendered_endpoints}
       </div>

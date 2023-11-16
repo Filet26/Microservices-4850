@@ -2,14 +2,14 @@ version: 1
 datastore:
   filename: data.json
 scheduler:
-  period_sec: 20
+  period_sec: 10
   max_timeout: 5
 endpoints:
   storage:
-    url: http://kafkaprod1.westus3.cloudapp.azure.com:8090/usage/health
+    url: http://kafkaprod1.westus3.cloudapp.azure.com:8090
   processing:
-    url: http://kafkaprod1.westus3.cloudapp.azure.com:8100/usage/health
+    url: http://kafkaprod1.westus3.cloudapp.azure.com:8100
   audit:
-    url: http://kafkaprod1.westus3.cloudapp.azure.com:8110/usage/health
+    url: http://kafkaprod1.westus3.cloudapp.azure.com:8110
   receiver:
-    url: http://kafkaprod1.westus3.cloudapp.azure.com:8080/usage/health
+    url: http://kafkaprod1.westus3.cloudapp.azure.com:8080
