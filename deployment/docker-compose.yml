@@ -103,6 +103,7 @@ services:
     volumes:
       - /home/azureuser/config/health:/config
       - /home/azureuser/logs:/logs
+      - health-db:/data
   dashboard:
     image: dashboard
     ports:
@@ -114,3 +115,4 @@ services:
 volumes:
   my-db:
   processing-db:
+  health-db:
