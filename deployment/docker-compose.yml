@@ -98,6 +98,8 @@ services:
       - "kafka"
   health:
     image: health
+    environment:
+      - TARGET_ENV=test
     ports:
       - "8120:8120"
     volumes:
