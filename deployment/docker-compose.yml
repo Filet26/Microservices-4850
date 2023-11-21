@@ -109,6 +109,8 @@ services:
       - TARGET_ENV=test
     ports:
       - "8120"
+    networks:
+      - "api.network"
     volumes:
       - /home/azureuser/config/health:/config
       - /home/azureuser/logs:/logs
