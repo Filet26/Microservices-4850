@@ -50,7 +50,7 @@ services:
       - my-db:/var/lib/mysql
     # Names our volume
   receiver:
-    image: filetfilet/receiver:receiverapp
+    image: receiver
     ports:
       - "8080"
     networks:
