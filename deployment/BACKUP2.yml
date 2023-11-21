@@ -52,9 +52,7 @@ services:
   receiver:
     image: filetfilet/receiver:receiverapp
     ports:
-      - "8080"
-    networks:
-      - "api.network"
+      - "8080:8080"
     environment:
       - TARGET_ENV=test
     volumes:
@@ -63,11 +61,9 @@ services:
     depends_on:
       - kafka
   storage:
-    image: storage
+    image: filetfilet/storage:storageapp
     ports:
-      - "8090"
-    networks:
-      - "api.network"
+      - "8090:8090"
     environment:
       - TARGET_ENV=test
     volumes:
@@ -77,25 +73,22 @@ services:
       - "kafka"
       - "db"
   processing:
-    image: processing
+    image: filetfilet/processing:processingapp
     ports:
-      - "8100"
-    networks:
-      - "api.network"
+      - "8100:8100"
     environment:
       - TARGET_ENV=test
     volumes:
       - /home/azureuser/config/processing:/config
       - /home/azureuser/logs:/logs
       - processing-db:/data
+    network_mode: "host"
     depends_on:
       - "storage"
   audit_log:
-    image: audit_log
+    image: filetfilet/audit:auditapp
     ports:
-      - "8110"
-    networks:
-      - "api.network"
+      - "8110:8110"
     environment:
       - TARGET_ENV=test
     volumes:
@@ -108,7 +101,7 @@ services:
     environment:
       - TARGET_ENV=test
     ports:
-      - "8120"
+      - "8120:8120"
     volumes:
       - /home/azureuser/config/health:/config
       - /home/azureuser/logs:/logs
@@ -116,33 +109,12 @@ services:
   dashboard:
     image: dashboard
     ports:
-      - "3000"
-    networks:
-      - "api.network"
+      - "3000:3000"
     depends_on:
       - "processing"
       - "audit_log"
-  nginx:
-    image: nginx:latest
-    # Connects the conf file of the container to the conf file in our folder
-    volumes:
-      - /home/azureuser/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
-    # It will start up the nginx only when all api containers have started
-    depends_on:
-      - "receiver"
-      - "storage"
-      - "processing"
-      - "audit_log"
-      - "dashboard-ui"
-    # Connects the port 80 of the nginx container to localhost:80 or localhost
-    ports:
-      - "80:80"
-    networks:
-      - "api.network"
 
 volumes:
   my-db:
   processing-db:
   health-db:
-networks:
-  api.network:

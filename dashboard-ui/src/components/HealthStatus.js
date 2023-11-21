@@ -8,7 +8,7 @@ export default function HeathStatus() {
 
   const getStats = () => {
     fetch(
-      `http://kafkaprod1.westus3.cloudapp.azure.com:8120/usage/health_status`
+      `http://kafkaprod1.westus3.cloudapp.azure.com/health/usage/health_status`
     )
       .then((res) => res.json())
       .then(

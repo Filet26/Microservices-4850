@@ -6,10 +6,10 @@ scheduler:
   max_timeout: 5
 endpoints:
   storage:
-    url: http://kafkaprod1.westus3.cloudapp.azure.com:8090
+    url: http://kafkaprod1.westus3.cloudapp.azure.com/storage
   processing:
-    url: http://kafkaprod1.westus3.cloudapp.azure.com:8100
+    url: http://kafkaprod1.westus3.cloudapp.azure.com/processing
   audit:
-    url: http://kafkaprod1.westus3.cloudapp.azure.com:8110
+    url: http://kafkaprod1.westus3.cloudapp.azure.com/audit_log
   receiver:
-    url: http://kafkaprod1.westus3.cloudapp.azure.com:8080
+    url: http://kafkaprod1.westus3.cloudapp.azure.com/receiver
