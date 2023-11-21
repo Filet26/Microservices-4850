@@ -10,7 +10,7 @@ export default function EndpointAudit(props) {
 
   const getAudit = () => {
     fetch(
-      `http://kafkaprod1.westus3.cloudapp.azure.com/audit/usage/${props.endpoint}?index=${rand_val}`
+      `http://kafkaprod1.westus3.cloudapp.azure.com/audit_log/usage/${props.endpoint}?index=${rand_val}`
     )
       .then((res) => res.json())
       .then(
