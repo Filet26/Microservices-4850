@@ -51,7 +51,7 @@ services:
       - my-db:/var/lib/mysql
     # Names our volume
   receiver:
-    image: receiver
+    image: filetfilet/receiver:receiverapp
     ports:
       - "8080"
     networks:
@@ -64,7 +64,7 @@ services:
     depends_on:
       - kafka
   storage:
-    image: storage
+    image: filetfilet/storage:storageapp
     ports:
       - "8090"
     networks:
@@ -78,7 +78,7 @@ services:
       - "kafka"
       - "db"
   processing:
-    image: processing
+    image: filetfilet/processing:processingapp
     ports:
       - "8100"
     networks:
@@ -92,7 +92,7 @@ services:
     depends_on:
       - "storage"
   audit_log:
-    image: audit_log
+    image: filetfilet/audit:auditapp
     ports:
       - "8110"
     networks:
